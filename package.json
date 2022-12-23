@@ -1,0 +1,27 @@
+{
+  "name": "basketball_bdd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TristanBoucansaud/basketball_bdd.git"
+  },
+  "author": "Tristan Boucansaud",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TristanBoucansaud/basketball_bdd/issues"
+  },
+  "homepage": "https://github.com/TristanBoucansaud/basketball_bdd#readme",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "express": "^4.18.2",
+    "fs": "0.0.1-security",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.20"
+  }
+}
