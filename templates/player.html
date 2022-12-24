@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <title>Player infos</title>
+  </head>
+  <body>
+    <header>
+      <h1>Name: <span id="player_name"></span></h1>
+      <h2><span id="player_citizenship"></span></h2>
+      <h2>Birth: <span id="player_birth"></span></h2>
+      <h2>Height: <span id="player_height"></span>cm</h2>
+    </header>
+    <section>
+      <h2>Currently playing in:</h2>
+      <table class="clickable">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Kind</th>
+            <th>Three points</th>
+            <th>Two points</th>
+            <th>Free points</th>
+            <th>Percentage of success</th>
+            <th>Assists</th>
+            <th>Rebounds</th>
+            <th>Blocks</th>
+            <th>Fouls</th>
+          </tr>
+        </thead>
+        <tbody id="teamplayers"></tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Previous game stats:</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Match</th>
+            <th>Final score</th>
+            <th>Three points</th>
+            <th>Two points</th>
+            <th>Free points</th>
+            <th>Percentage of success</th>
+            <th>Assists</th>
+            <th>Rebounds</th>
+            <th>Blocks</th>
+            <th>Fouls</th>
+          </tr>
+        </thead>
+        <tbody id="playergamestats"></tbody>
+      </table>
+    </section>
+    <footer>
+      <article>
+        <button onclick="window.history.back()">Return</button>
+        <button onclick="window.location.href = '/'">Homepage</button>
+      </article>
+    </footer>
+  </body>
+  <script>
+    function get_player_info() {
+      var player_id = window.location.href.split("/").slice(-1)[0];
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "/get_player_info/" + player_id);
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send();
+      xhttp.onload = function () {
+        data = JSON.parse(xhttp.responseText);
+        var player = data.player;
+        var teamplayers = data.teamplayers;
+        var player_games = data.player_games;
+        fill_player_infos(player);
+        fill_player_teams(teamplayers);
+        fill_player_games(player_games);
+      };
+    }
+
+    function fill_player_infos(player) {
+      document.getElementById("player_name").innerHTML = player.name;
+      document.getElementById("player_citizenship").innerHTML =
+        player.citizenship;
+      document.getElementById("player_height").innerHTML = player.height;
+      var birthdate = new Date(player.birth);
+      document.getElementById("player_birth").innerHTML =
+        birthdate.toLocaleDateString();
+    }
+
+    function fill_player_teams(teamplayers) {
+      var parent = document.getElementById("teamplayers");
+      teamplayers.forEach((player) => {
+        var tr = document.createElement("tr");
+        tr.onclick = (event) => {
+          window.location.href = "/team/" + player.team;
+        };
+        var td_name = document.createElement("td");
+        td_name.innerHTML = player.name;
+        var td_kind = document.createElement("td");
+        td_kind.innerHTML = player.kind;
+        var td_three_pts = document.createElement("td");
+        td_three_pts.innerHTML = player.three_pts;
+        var td_two_pts = document.createElement("td");
+        td_two_pts.innerHTML = player.two_pts;
+        var td_free_pts = document.createElement("td");
+        td_free_pts.innerHTML = player.free_pts;
+        var td_per_success = document.createElement("td");
+        td_per_success.innerHTML = player.per_success;
+        var td_assists = document.createElement("td");
+        td_assists.innerHTML = player.assists;
+        var td_rebounds = document.createElement("td");
+        td_rebounds.innerHTML = player.rebounds;
+        var td_blocks = document.createElement("td");
+        td_blocks.innerHTML = player.blocks;
+        var td_fouls = document.createElement("td");
+        td_fouls.innerHTML = player.fouls;
+        tr.appendChild(td_name);
+        tr.appendChild(td_kind);
+        tr.appendChild(td_three_pts);
+        tr.appendChild(td_two_pts);
+        tr.appendChild(td_free_pts);
+        tr.appendChild(td_per_success);
+        tr.appendChild(td_assists);
+        tr.appendChild(td_rebounds);
+        tr.appendChild(td_blocks);
+        tr.appendChild(td_fouls);
+        parent.appendChild(tr);
+      });
+    }
+
+    function fill_player_games(player_games) {
+      var parent = document.getElementById("playergamestats");
+      player_games.forEach((gamestats) => {
+        var tr = document.createElement("tr");
+        var td_match = document.createElement("td");
+        td_match.innerHTML = gamestats.team_1 + " - " + gamestats.team_2;
+        var td_score = document.createElement("td");
+        td_score.innerHTML =
+          gamestats.score_team_1 + " - " + gamestats.score_team_2;
+        var td_three_pts = document.createElement("td");
+        td_three_pts.innerHTML = gamestats.three_pts;
+        var td_two_pts = document.createElement("td");
+        td_two_pts.innerHTML = gamestats.two_pts;
+        var td_free_pts = document.createElement("td");
+        td_free_pts.innerHTML = gamestats.free_pts;
+        var td_per_success = document.createElement("td");
+        td_per_success.innerHTML = gamestats.per_success;
+        var td_assists = document.createElement("td");
+        td_assists.innerHTML = gamestats.assists;
+        var td_rebounds = document.createElement("td");
+        td_rebounds.innerHTML = gamestats.rebounds;
+        var td_blocks = document.createElement("td");
+        td_blocks.innerHTML = gamestats.blocks;
+        var td_fouls = document.createElement("td");
+        td_fouls.innerHTML = gamestats.fouls;
+        tr.appendChild(td_match);
+        tr.appendChild(td_score);
+        tr.appendChild(td_three_pts);
+        tr.appendChild(td_two_pts);
+        tr.appendChild(td_free_pts);
+        tr.appendChild(td_per_success);
+        tr.appendChild(td_assists);
+        tr.appendChild(td_rebounds);
+        tr.appendChild(td_blocks);
+        tr.appendChild(td_fouls);
+        parent.appendChild(tr);
+      });
+    }
+
+    get_player_info();
+  </script>
+</html>

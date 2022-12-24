@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/style.css" />
+    <title>Team view</title>
+  </head>
+  <body>
+    <header>
+      <h1><span id="team_kind"></span>: <span id="team_name"></span></h1>
+      <h2>City: <span id="team_location"></span></h2>
+    </header>
+    <section>
+      <h2>Players</h2>
+      <table class="clickable">
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Name</th>
+            <th>Citizenship</th>
+            <th>Birth</th>
+          </tr>
+        </thead>
+        <tbody id="players_tbody"></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Sponsors</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>City</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody id="sponsors_tbody"></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Tournaments</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody id="tournaments_tbody"></tbody>
+      </table>
+    </section>
+    <footer>
+      <article>
+        <button onclick="window.history.back()">Return</button>
+        <button onclick="window.location.href = '/'">Homepage</button>
+      </article>
+    </footer>
+  </body>
+  <script>
+    function get_team_info() {
+      var team_id = window.location.href.split("/").slice(-1)[0];
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "/get_team_info/" + team_id);
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send();
+      xhttp.onload = function () {
+        data = JSON.parse(xhttp.responseText);
+        var team = data.team;
+        var teamplayers = data.teamplayers;
+        var sponsors = data.sponsors;
+        var tournaments = data.tournaments;
+        fill_team_infos(team);
+        fill_team_players(teamplayers);
+        fill_sponsors(sponsors);
+        fill_tournaments(tournaments);
+      };
+    }
+
+    function fill_team_infos(team) {
+      document.getElementById("team_kind").innerHTML =
+        team.kind == "club" ? "Club" : "National";
+      document.getElementById("team_name").innerHTML = team.name;
+      document.getElementById("team_location").innerHTML = team.location;
+    }
+
+    function fill_team_players(teamplayers) {
+      var parent = document.getElementById("players_tbody");
+      teamplayers.forEach((player) => {
+        var tr = document.createElement("tr");
+        tr.id = player.id;
+        tr.onclick = handle_player_click;
+        var td_number = document.createElement("td");
+        td_number.innerHTML = player.number;
+        var td_name = document.createElement("td");
+        td_name.innerHTML = player.name;
+        var td_citizenship = document.createElement("td");
+        td_citizenship.innerHTML = player.citizenship;
+        var td_birth = document.createElement("td");
+        var birthdate = new Date(player.birth);
+        td_birth.innerHTML = birthdate.toLocaleDateString();
+        tr.appendChild(td_number);
+        tr.appendChild(td_name);
+        tr.appendChild(td_citizenship);
+        tr.appendChild(td_birth);
+        parent.appendChild(tr);
+      });
+    }
+
+    function fill_sponsors(sponsors) {
+      var parent = document.getElementById("sponsors_tbody");
+      sponsors.forEach((sponsor) => {
+        var tr = document.createElement("tr");
+        var td_name = document.createElement("td");
+        td_name.innerHTML = sponsor.name;
+        var td_city = document.createElement("td");
+        td_city.innerHTML = sponsor.city;
+        var td_amount = document.createElement("td");
+        td_amount.innerHTML = sponsor.amount;
+        tr.appendChild(td_name);
+        tr.appendChild(td_city);
+        tr.appendChild(td_amount);
+        parent.appendChild(tr);
+      });
+    }
+
+    function fill_tournaments(tournaments) {
+      var parent = document.getElementById("tournaments_tbody");
+      tournaments.forEach((tournament) => {
+        var tr = document.createElement("tr");
+        var td_name = document.createElement("td");
+        td_name.innerHTML = tournament.name;
+        tr.appendChild(td_name);
+        parent.appendChild(tr);
+      });
+    }
+
+    function handle_player_click(event) {
+      window.location.href = "/player/" + event.currentTarget.id;
+    }
+
+    get_team_info();
+  </script>
+</html>

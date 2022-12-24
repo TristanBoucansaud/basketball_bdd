@@ -4,15 +4,216 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/style.css" />
     <title>Basketball BDD</title>
   </head>
   <body>
-    <form>
-      <input type="number" />
-      <button>Team faker</button>
-    </form>
+    <header>
+      <h1>Choose a League or a Championship</h1>
+    </header>
+    <section>
+      <h2>Leagues</h2>
+      <section id="leagues"></section>
+    </section>
+    <section>
+      <h2>Championships</h2>
+      <section id="championships"></section>
+    </section>
+    <footer>
+      <h2>Data generator</h2>
+      <article>
+        <input id="number_teams" type="number" />
+        <button id="teams_faker_button" onclick="team_faker()">
+          Team faker
+        </button>
+      </article>
+      <article>
+        <input id="number_players" type="number" />
+        <button id="players_faker_button" onclick="player_faker()">
+          Player faker
+        </button>
+      </article>
+      <article>
+        <input id="number_games" type="number" />
+        <button id="games_faker_button" onclick="game_faker()">
+          Game faker
+        </button>
+      </article>
+    </footer>
   </body>
   <script>
-    var xhttp = new XMLHttpRequest();
+    function handle_team_click(event) {
+      window.location.href = "/team/" + event.currentTarget.id;
+    }
+
+    function build_league(parent, league, clubs) {
+      var article = document.createElement("article");
+      var h3 = document.createElement("h3");
+      h3.innerHTML = league.name;
+      article.id = league.name + league.id;
+      article.appendChild(h3);
+
+      var table = document.createElement("table");
+      table.classList.add("clickable");
+      var tablehead = document.createElement("thead");
+      var tr = document.createElement("tr");
+      var th_name = document.createElement("th");
+      th_name.innerHTML = "Name";
+      var th_city = document.createElement("th");
+      th_city.innerHTML = "City";
+      tr.appendChild(th_name);
+      tr.appendChild(th_city);
+      tablehead.appendChild(tr);
+      table.appendChild(tablehead);
+
+      var tbody = document.createElement("tbody");
+      clubs.forEach((club, index) => {
+        var tr = document.createElement("tr");
+        tr.id = club.id;
+        tr.onclick = handle_team_click;
+        var th_name = document.createElement("td");
+        th_name.innerHTML = club.name;
+        var th_city = document.createElement("td");
+        th_city.innerHTML = club.city;
+        tr.appendChild(th_name);
+        tr.appendChild(th_city);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      article.appendChild(table);
+      parent.appendChild(article);
+    }
+
+    function build_leagues(leagues, teams) {
+      var parent = document.getElementById("leagues");
+      leagues.forEach((league) => {
+        build_league(parent, league, teams[league.id]);
+      });
+    }
+
+    function build_championship(parent, championship, nationals) {
+      var article = document.createElement("article");
+      var h3 = document.createElement("h3");
+      h3.innerHTML = championship.name;
+      article.id = championship.name + championship.id;
+      article.appendChild(h3);
+
+      var table = document.createElement("table");
+      table.classList.add("clickable");
+      var tablehead = document.createElement("thead");
+      var tr = document.createElement("tr");
+      var th_name = document.createElement("th");
+      th_name.innerHTML = "Name";
+      var th_country = document.createElement("th");
+      th_country.innerHTML = "Country";
+      tr.appendChild(th_name);
+      tr.appendChild(th_country);
+      tablehead.appendChild(tr);
+      table.appendChild(tablehead);
+
+      var tbody = document.createElement("tbody");
+      nationals.forEach((national, index) => {
+        var tr = document.createElement("tr");
+        tr.id = national.id;
+        tr.onclick = handle_team_click;
+        var th_name = document.createElement("td");
+        th_name.innerHTML = national.name;
+        var th_country = document.createElement("td");
+        th_country.innerHTML = national.country;
+        tr.appendChild(th_name);
+        tr.appendChild(th_country);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      article.appendChild(table);
+      parent.appendChild(article);
+    }
+
+    function build_championships(championships, teams) {
+      var parent = document.getElementById("championships");
+      championships.forEach((championship) => {
+        build_championship(parent, championship, teams[championship.id]);
+      });
+    }
+
+    function get_championships() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "/tournaments/championships");
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send();
+      xhttp.onload = function () {
+        data = JSON.parse(xhttp.responseText);
+        build_championships(data.championships, data.nationals);
+      };
+    }
+
+    function get_leagues() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "/tournaments/leagues");
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send();
+      xhttp.onload = function () {
+        data = JSON.parse(xhttp.responseText);
+        build_leagues(data.leagues, data.clubs);
+      };
+    }
+
+    get_championships();
+    get_leagues();
+
+    function team_faker() {
+      document.getElementById("teams_faker_button").disabled = true;
+      document.getElementById("players_faker_button").disabled = true;
+      document.getElementById("games_faker_button").disabled = true;
+      var number = document.getElementById("number_teams").value;
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/team_faker");
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(JSON.stringify({ number_teams: number }));
+      xhttp.onload = function () {
+        document.getElementById("teams_faker_button").disabled = false;
+        document.getElementById("players_faker_button").disabled = false;
+        document.getElementById("games_faker_button").disabled = false;
+        alert(xhttp.responseText);
+      };
+    }
+
+    function player_faker() {
+      document.getElementById("teams_faker_button").disabled = true;
+      document.getElementById("players_faker_button").disabled = true;
+      document.getElementById("games_faker_button").disabled = true;
+      var number =
+        document.getElementById("number_players").value == ""
+          ? 0
+          : parseInt(document.getElementById("number_players").value);
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/player_faker");
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(JSON.stringify({ number_players: number }));
+      xhttp.onload = function () {
+        document.getElementById("teams_faker_button").disabled = false;
+        document.getElementById("players_faker_button").disabled = false;
+        document.getElementById("games_faker_button").disabled = false;
+        alert(xhttp.responseText);
+      };
+    }
+
+    function game_faker() {
+      document.getElementById("teams_faker_button").disabled = true;
+      document.getElementById("players_faker_button").disabled = true;
+      document.getElementById("games_faker_button").disabled = true;
+      var number = document.getElementById("number_games").value;
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/game_faker");
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(JSON.stringify({ number_games: number }));
+      xhttp.onload = function () {
+        document.getElementById("teams_faker_button").disabled = false;
+        document.getElementById("players_faker_button").disabled = false;
+        document.getElementById("games_faker_button").disabled = false;
+        alert(xhttp.responseText);
+      };
+    }
   </script>
 </html>
